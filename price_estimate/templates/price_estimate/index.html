@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <title>IHOUZZ - Demo định giá</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="">
+    <style>
+        .card {
+            flex-direction: unset !important;
+        }
+        .footer-div {
+            text-align: center;
+        }
+        .result-div {
+            font-size: 1.5rem;
+        }
+        .select2-container {
+            width: 100% !important;
+            height: calc(1.5em + 0.75rem + 2px) !important;
+        }
+        .select2-selection {
+            border: 1px solid #ced4da !important;
+            height: calc(1.5em + 0.75rem + 2px) !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: calc(1.5em + 0.75rem + 2px) !important;
+            padding-right: 1rem !important;
+            padding-left: 1rem !important;
+            color: #495057 !important;
+        }
+        .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem + 2px) !important;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        var REAL_ESTATE_TYPE_HOUSE = 1;
+        var REAL_ESTATE_TYPE_APARTMENT = 2;
+        var REAL_ESTATE_TYPE_OFFICE = 3;
+        var REAL_ESTATE_TYPE_LAND = 4;
+        var REAL_ESTATE_TYPE_WAREHOUSE = 5;
+        var REAL_ESTATE_TYPE_HOTEL = 6;
+        var REAL_ESTATE_TYPE_OTHER = 7;
+        $(document).ready(function () {
+            $('.select2').select2();
+
+            $('.pack-input-capacity').on('keyup', function() {
+                var num = ($(this).val());
+                var minInput = ($(this).data('min'));
+                var maxInput = ($(this).data('max'));
+                if (!isNaN(maxInput) && maxInput != -1 && num > maxInput) {
+                    $(this).val(maxInput);
+                } else if (!isNaN(minInput) && maxInput != -1 && num < minInput) {
+                    $(this).val(minInput);
+                }
+            });
+
+            $(".allow-numeric-with-decimal").keyup(function(e) {
+                var $this = $(this);
+                $this.val($this.val().replace(/[^\d.]/g, ''));
+                if ((e.which < 48 || e.which > 57)) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#real_estate_type').on('change', function (e) {
+                var option = '<option value="" disabled selected>Chọn hình thức BĐS</option>';
+                $('#real_estate_form').empty();
+                $('#real_estate_form').prop('disabled', false);
+                switch (parseInt($(this).val())) {
+                    case REAL_ESTATE_TYPE_HOUSE:
+                        option += '<option value="8.0">Nhà mặt phố, nhà mặt tiền</option>\n' +
+                            '<option value="9.0">Nhà, ngõ, hẻm</option>\n' +
+                            '<option disabled="disabled" value="1.0">Biệt thư</option>\n' +
+                            '<option disabled="disabled" value="1.0">Nhà, phố liền kề</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_APARTMENT:
+                        option += '<option value="3.0">Chung cư</option>\n' +
+                            '<option value="2.0">Duplex</option>\n' +
+                            '<option value="2.0">Penthouse</option>\n' +
+                            '<option value="3.0">Căn hộ dịch vụ, mini</option>\n' +
+                            '<option value="11.0">Tập thể cư xá</option>\n' +
+                            '<option value="10.0" disabled="disabled">Officetel</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_OFFICE:
+                        option += '<option value="6.0">Mặt bằng kinh doanh</option>\n' +
+                            '<option value="14.0">Văn phòng</option>\n' +
+                            '<option value="12.0" disabled="disabled">Shophouse</option>\n' +
+                            '<option value="10.0" disabled="disabled">Officetel</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_LAND:
+                        option += '<option value="17.0">Đất thổ cư, đất ở</option>\n' +
+                            '<option value="16.0">Đất nền, đất liền kề, đất dự án</option>\n' +
+                            '<option value="15.0">Đất công, nông. lâm nghiệp</option>\n' +
+                            '<option value="5.0">Mặt bằng</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_WAREHOUSE:
+                        option += '<option value="4.0">Kho, xưởng</option>\n' +
+                            '<option value="13.0">Trang trại</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_HOTEL:
+                        option += '<option value="11.0">Phòng trọ, nhà trọ</option>\n' +
+                            '<option value="7.0">Nhà hàng khách sạn</option>';
+                        break;
+                    case REAL_ESTATE_TYPE_OTHER:
+                        option = '2.0';
+                        $('#real_estate_form').prop('disabled', true);
+                        break;
+                }
+                $('#real_estate_form').append(option);
+            });
+
+            $('.btn-submit').on('click', function () {
+                console.log($('#form-estimate').serializeArray());
+            });
+        });
+    </script>
+    <body>
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid my-2">
+                    <div class="row">
+                        <div class="col-12 pl-0">
+                            <div class="pt-2 pb-2">
+                                <h4 class="mb-sm-0">Định giá BĐS</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row card mb-5">
+                        <div class="ml-5 mt-4 result-div">
+                            {% if estimation %}
+                            <span>Kết quả định giá: <span class="text-danger">{{ estimation }}  VND</span></span>
+                            {% endif %}
+                            {% if estimation_text %}
+                            <p>({{ estimation_text }})</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-12 card-body mb-4 mx-5 border">
+                            <form id="form-estimate" method="post" action="{% url 'price_estimate:price_estimate' %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 row">
+                                        <div class="row w-100 mx-0">
+                                            <div class="col-md-12">
+                                                <h6>Loại BĐS</h6>
+                                            </div>
+                                            <div class="col-md-12 row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">* Loại bất động sản</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select required="required" class="form-control" name="real_estate_type" id="real_estate_type">
+                                                            <option value="1">Nhà</option>
+                                                            <option value="2">Căn hộ, chung cư</option>
+                                                            <option value="3">Văn phòng, mặt bằng kinh doanh</option>
+                                                            <option value="4">Đất</option>
+                                                            <option value="5">Kho, xưởng</option>
+                                                            <option value="6">Phòng trọ, khách sạn</option>
+                                                            <option value="7" disabled="disabled">BĐS khác</option>
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-12 row mt-2">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">Hình thức BĐS</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select required="required" class="form-control" name="real_estate_form" id="real_estate_form">
+                                                            <option value="" disabled selected>Chọn hình thức BĐS</option>
+                                                            <option value="8.0">Nhà mặt phố, nhà mặt tiền</option>
+                                                            <option value="9.0">Nhà, ngõ, hẻm</option>
+                                                            <option value="1.0" disabled="disabled">Biệt thư</option>
+                                                            <option value="1.0" disabled="disabled">Nhà, phố liền kề</option>
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                        <div class="row w-100 mx-0">
+                                            <div class="col-md-12">
+                                                <h6>Địa chỉ BĐS</h6>
+                                            </div>
+                                            <div class="col-md-12 row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">* Tỉnh / Thành phố</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select class="form-control select2" name="city_address" id="city_address">
+<!--                                                            <option value="15">Hải Phòng</option>-->
+<!--                                                            <option value="18">Nam Định</option>-->
+                                                            <option value="29">Hà Nội</option>
+                                                            <option value="41">HCM</option>
+<!--                                                            <option value="43">Đà Nẵng</option>-->
+<!--                                                            <option value="65">Cần Thơ</option>-->
+<!--                                                            <option value="75">Huế</option>-->
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-12 row mt-2">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">* Quận / Huyện</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select class="form-control select2" name="district_address">
+                                                            <option value="1">Cầu Giấy</option>
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-12 row mt-2">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">* Phường / Xã</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select class="form-control select2" name="ward_address">
+                                                            <option>Dịch Vọng</option>
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-12 row mt-2">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">* Đường / Phố</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <select class="form-control select2" name="street_address">
+                                                            <option>Trương Công Giai</option>
+                                                        </select>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-12 row mt-2">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4"> Ngõ / Ngách / Số nhà</div>
+                                                    <div class="col-md-6 pr-0 pl-4">
+                                                        <input type="text" class="form-control" id="house_number" name="house_number">
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 row">
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-12 row pr-0">
+                                                <div class="col-md-2"></div>
+                                                <div class="col-md-10 border mt-4" style="background-image: url('https://images.careerbuilder.vn/content/news/20170720/google-maps_1500487328.png')"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Vị trí BĐS</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"> Tên dự án/Khu dân cư/Tòa nhà</div>
+                                            <div class="col-md-6">
+                                                <select class="form-control select2" name="project_name">
+                                                    <option>Vinhomes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"> Mã căn/Mã lô</div>
+                                            <div class="col-md-6">
+                                                <input class="form-control" id="apartment_number" name="apartment_number" maxlength="255">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"> Tên phân khu/Lô, block/Tháp</div>
+                                            <div class="col-md-6">
+                                                <input class="form-control" id="block_name" name="block_name" maxlength="255">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Tầng số</div>
+                                            <div class="col-md-6">
+                                                <input type="number" class="form-control" id="floor_no" name="floor_no" max="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Thông tin diện tích BĐS</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">* Diện tích</div>
+                                            <div class="col-md-6">
+                                                <input required="required" type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="area" name="area" placeholder="m2" data-min="1" data-max="1000000">
+                                                <span class="text-danger error area-error"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Chiều dài</div>
+                                            <div class="col-md-6">
+                                                <input required="required" type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="length" name="length" placeholder="m" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Chiều rộng</div>
+                                            <div class="col-md-6">
+                                                <input required="required" type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="width" name="width" placeholder="m" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Thông tin xây dựng BĐS</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Diện tích sử dụng</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="use_area" name="use_area" placeholder="m2" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Mặt tiền</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="front_length" name="front_length" placeholder="m" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Mặt hậu</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="back_length" name="back_length" placeholder="m" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Hướng</div>
+                                            <div class="col-md-6">
+                                                <select class="form-control" name="house_direction">
+                                                    <option value="0">Không xác định</option>
+                                                    <option value="1.0">Đông</option>
+                                                    <option value="2.0">Tây</option>
+                                                    <option value="3.0">Nam</option>
+                                                    <option value="4.0">Bắc</option>
+                                                    <option value="5.0">Đông Bắc</option>
+                                                    <option value="6.0">Đông Nam</option>
+                                                    <option value="7.0">Tây Bắc</option>
+                                                    <option value="8.0">Tây Nam</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Hướng ban công</div>
+                                            <div class="col-md-6">
+                                                <select class="form-control" name="balcony_direction">
+                                                    <option value="0">Không xác định</option>
+                                                    <option value="1.0">Đông</option>
+                                                    <option value="2.0">Tây</option>
+                                                    <option value="3.0">Nam</option>
+                                                    <option value="4.0">Bắc</option>
+                                                    <option value="5.0">Đông Bắc</option>
+                                                    <option value="6.0">Đông Nam</option>
+                                                    <option value="7.0">Tây Bắc</option>
+                                                    <option value="8.0">Tây Nam</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Đặc điểm nhà đất</div>
+                                            <div class="col-md-6">
+                                                <select class="form-control" name="house_feature">
+                                                    <option value="0">Không xác định</option>
+                                                    <option value="1">Hẻm xe hơi</option>
+                                                    <option value="2">Mặt tiền</option>
+                                                    <option value="3">Nở hậu</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Đường trước nhà</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="distance_house_to_way" name="distance_house_to_way" placeholder="m" data-min="1" data-max="1000000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Pháp lý</div>
+                                            <label class="col-md-3 checkbox-inline" for="land_ownership_certification">
+                                                <input type="checkbox" name="land_ownership_certification" id="land_ownership_certification" value="1">
+                                                Số đỏ
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="house_ownership_certification">
+                                                <input type="checkbox" name="house_ownership_certification" id="house_ownership_certification" value="1">
+                                                Số hồng
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="business_license">
+                                                <input type="checkbox" name="business_license" id="business_license" value="1">
+                                                Giấy phép kinh doanh
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="construction_permit">
+                                                <input type="checkbox" name="construction_permit" id="construction_permit" value="1">
+                                                Giấy phép xây dựng
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Số tầng</div>
+                                            <div class="col-md-6">
+                                                <input type="number" class="form-control" id="floor_number" name="floor_number">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Số phòng ngủ</div>
+                                            <div class="col-md-6">
+                                                <input type="number" class="form-control" id="bedroom_number" name="bedroom_number">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Nhà vệ sinh</div>
+                                            <div class="col-md-6">
+                                                <input type="number" class="form-control" id="bathroom_number" name="bathroom_number">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Tình trạng nội thất</div>
+                                            <div class="col-md-6">
+                                                <select class="form-control" name="furniture_status">
+                                                    <option>Nội thất cao cấp</option>
+                                                    <option>Nội thất đầy đủ</option>
+                                                    <option>Nội thất trống</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">  Năm xây dựng</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control pack-input-capacity allow-numeric-with-decimal" id="built_year" name="built_year" data-min="1900" data-max="2021">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="owner">
+                                                <input type="checkbox" name="owner" id="owner" value="1">
+                                                Chính chủ
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="corner_unit">
+                                                <input type="checkbox" name="corner_unit" id="corner_unit" value="1">
+                                                Căn góc
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Tiện ích</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="car_parking">
+                                                <input type="checkbox" name="car_parking" id="car_parking" value="1">
+                                                Để xe hơi
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="terrace">
+                                                <input type="checkbox" name="terrace" id="terrace" value="1">
+                                                Sân thượng
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="balcony">
+                                                <input type="checkbox" name="balcony" id="balcony" value="1">
+                                                Ban công
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="pool">
+                                                <input type="checkbox" name="pool" id="pool" value="1">
+                                                Hồ bơi
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="air_conditioning">
+                                                <input type="checkbox" name="air_conditioning" id="air_conditioning" value="1">
+                                                Điều hòa
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="washing_machine">
+                                                <input type="checkbox" name="washing_machine" id="washing_machine" value="1">
+                                                Máy giặt
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="dryer">
+                                                <input type="checkbox" name="dryer" id="dryer" value="1">
+                                                Máy sấy
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="refrigerator">
+                                                <input type="checkbox" name="refrigerator" id="refrigerator" value="1">
+                                                Tủ lạnh
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="basement">
+                                                <input type="checkbox" name="basement" id="basement" value="1">
+                                                Tầng hầm
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="adsl">
+                                                <input type="checkbox" name="adsl" id="adsl" value="1">
+                                                ADSL
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="fiber_internet">
+                                                <input type="checkbox" name="fiber_internet" id="fiber_internet" value="1">
+                                                Cáp quang
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="wifi">
+                                                <input type="checkbox" name="wifi" id="wifi" value="1">
+                                                Wifi
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="dining_room">
+                                                <input type="checkbox" name="dining_room" id="dining_room" value="1">
+                                                Phòng ăn
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="kitchen_room">
+                                                <input type="checkbox" name="kitchen_room" id="kitchen_room" value="1">
+                                                Nhà bếp
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Khu vực có</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="supermarket">
+                                                <input type="checkbox" name="supermarket" id="supermarket" value="1">
+                                                Siêu thị
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="sea">
+                                                <input type="checkbox" name="sea" id="sea" value="1">
+                                                Biển
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="school">
+                                                <input type="checkbox" name="school" id="school" value="1">
+                                                Trường học
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="market">
+                                                <input type="checkbox" name="market" id="market" value="1">
+                                                Chợ
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="hospital">
+                                                <input type="checkbox" name="hospital" id="hospital" value="1">
+                                                Bệnh viện
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="pagoda">
+                                                <input type="checkbox" name="pagoda" id="pagoda" value="1">
+                                                Chùa
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="park">
+                                                <input type="checkbox" name="park" id="park" value="1">
+                                                Công viên
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="church">
+                                                <input type="checkbox" name="church" id="church" value="1">
+                                                Nhà thờ
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4"></div>
+                                            <label class="col-md-3 checkbox-inline" for="airport">
+                                                <input type="checkbox" name="airport" id="airport" value="1">
+                                                Sân bay
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="clinics">
+                                                <input type="checkbox" name="clinics" id="clinics" value="1">
+                                                Trạm xá
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <label class="col-md-4 checkbox-inline" for="bus_station">
+                                                <input type="checkbox" name="bus_station" id="bus_station" value="1">
+                                                Bến xe buýt
+                                            </label>
+                                            <label class="col-md-3 checkbox-inline" for="preschool">
+                                                <input type="checkbox" name="preschool" id="preschool" value="1">
+                                                Trường mầm non
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6>Thông tin liên hệ</h6>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">* Họ tên</div>
+                                            <div class="col-md-6">
+                                                <input required="required" type="text" class="form-control" id="name" name="name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">* Số điện thoại</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" id="phone" name="phone">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row mt-2">
+                                        <div class="col-md-6 row">
+                                            <div class="col-md-2"></div>
+                                            <div class="col-md-4">* Email</div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" id="email" name="email">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-12 footer-div mb-3">
+                            <input onclick="dinh-gia" class="btn btn-primary btn-submit" type="submit" form="form-estimate" value="Định giá">
+                        </div>
+                    </div>
+                </div>
+                <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+        </div>
+    </body>
+</html>
